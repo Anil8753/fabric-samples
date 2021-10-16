@@ -28,7 +28,7 @@ func (c *Contract) BuyAsset(
 	}
 
 	if !assetPub.Available {
-		return nil, fmt.Errorf("asset already soldout. assetId: %s\n%v", transientInput.AssetId, err)
+		return nil, fmt.Errorf("asset already soldout. assetId: %s", transientInput.AssetId)
 	}
 
 	if assetPub.Owner == mspIdClient {
