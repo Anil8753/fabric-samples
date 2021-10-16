@@ -33,7 +33,7 @@ export KEYVALUE=$(echo -n '{ "id":"002", "name":"Second", "desc":"This is second
 ./minifab query -p '"GetPrivateData", "002"' -o org1.test.com
 ```
 
-#### Should fail
+#### Should fail because `001` belongs to the org0 not to org1
 ```
 ./minifab query -p '"GetPrivateData", "001"' -o org1.test.com
 ```
