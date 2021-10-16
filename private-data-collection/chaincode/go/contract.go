@@ -17,6 +17,12 @@ type AssetPrivate struct {
 	Desc       string `json:"desc"`
 }
 
+type TransientInput struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+	Desc string `json:"desc"`
+}
+
 type Contract struct {
 	contractapi.Contract
 }
@@ -27,9 +33,6 @@ func (c *Contract) InitLedger(ctx contractapi.TransactionContextInterface) error
 
 func (c *Contract) PutPrivateData(
 	ctx contractapi.TransactionContextInterface,
-	id string,
-	name string,
-	desc string,
 ) error {
 
 	mspId, err := ctx.GetClientIdentity().GetMSPID()
@@ -37,18 +40,24 @@ func (c *Contract) PutPrivateData(
 		return fmt.Errorf("failed to get msp id.\n%v", err)
 	}
 
+	// get transient input
+	transientInput, err := getTransientInput(ctx)
+	if err != nil {
+		return err
+	}
+
 	collection := buildCollectionName(mspId)
 
 	// endorsement policy
-	if err := setPrivateStateBasedEndorsement(ctx, collection, id, mspId); err != nil {
-		return fmt.Errorf("failed to set private data endorsement policy./n%v", err)
+	if err := setPrivateStateBasedEndorsement(ctx, collection, transientInput.Id, mspId); err != nil {
+		return err
 	}
 
 	ap := AssetPrivate{
 		ObjectType: assetType,
-		Id:         id,
-		Name:       name,
-		Desc:       desc,
+		Id:         transientInput.Id,
+		Name:       transientInput.Name,
+		Desc:       transientInput.Desc,
 	}
 
 	b, err := json.Marshal(ap)
@@ -56,7 +65,7 @@ func (c *Contract) PutPrivateData(
 		return fmt.Errorf("failed to marshal data.\n%v", err)
 	}
 
-	if err := ctx.GetStub().PutPrivateData(collection, id, b); err != nil {
+	if err := ctx.GetStub().PutPrivateData(collection, transientInput.Id, b); err != nil {
 		return fmt.Errorf("failed to put private data.\n%v", err)
 	}
 
@@ -125,4 +134,24 @@ func setPrivateStateBasedEndorsement(
 	}
 
 	return nil
+}
+
+func getTransientInput(ctx contractapi.TransactionContextInterface) (*TransientInput, error) {
+
+	transientMap, err := ctx.GetStub().GetTransient()
+	if err != nil {
+		return nil, fmt.Errorf("failed to get transoent data.\n%v", err)
+	}
+
+	data, ok := transientMap["data"]
+	if !ok {
+		return nil, fmt.Errorf("failed to get 'data' field from the transient data.\n%v", transientMap)
+	}
+
+	var input TransientInput
+	if err := json.Unmarshal(data, &input); err != nil {
+		return nil, fmt.Errorf("failed to parse transoent data.\n%v", err)
+	}
+
+	return &input, nil
 }

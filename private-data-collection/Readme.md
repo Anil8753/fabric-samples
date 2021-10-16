@@ -14,12 +14,15 @@ mkdir -p ./vars/chaincode/pdc && cp -rf ./chaincode/go ./vars/chaincode/pdc/
 ```
 
 ### Create Private Data
+Pass the input data as transient field as compared to the arguments list
 ```
-./minifab invoke -p '"PutPrivateData", "001", "First", "This is first"' -o org0.test.com
+export KEYVALUE=$(echo -n '{ "id":"001", "name":"First", "desc":"This is first" }' | base64 | tr -d \\n)
+./minifab invoke -p '"PutPrivateData"' -t '{ "data": "'$KEYVALUE'"}' -o org0.test.com
 ```
 
 ```
-./minifab invoke -p '"PutPrivateData", "002", "Second", "This is second"' -o org1.test.com
+export KEYVALUE=$(echo -n '{ "id":"002", "name":"Second", "desc":"This is second" }' | base64 | tr -d \\n)
+./minifab invoke -p '"PutPrivateData"' -t '{ "data": "'$KEYVALUE'"}' -o org1.test.com
 ```
 
 ### Read Private Data
