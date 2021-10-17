@@ -46,17 +46,17 @@ mkdir -p ./vars/chaincode/pdc && cp -rf ./chaincode/go ./vars/chaincode/pdc/
 ```
 
 ### Read Public Asset
-By Org0
+By org0-test-com
 ```
 ./minifab query -p '"ReadPublicAsset", "asset_001"' -o org0.test.com
 ```
 
-By Org1
+By org1-test-com
 ```
 ./minifab query -p '"ReadPublicAsset", "asset_001"' -o org1.test.com
 ```
 
-By Org2
+By org2-test-com
 ```
 ./minifab query -p '"ReadPublicAsset", "asset_001"' -o org2.test.com
 ```
